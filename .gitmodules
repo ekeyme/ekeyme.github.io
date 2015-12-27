@@ -1,0 +1,3 @@
+[submodule "themes/TKL"]
+	path = themes/TKL
+	url = https://github.com/ekeyme/TKL.git
