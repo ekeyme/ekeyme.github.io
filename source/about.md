@@ -2009,19 +2009,31 @@ jComhCZ4SElLDprG+6yUdkXfCr7xWS+GU2ZKnDn9Lr2ka9TQa7oWtc948cbOhS/cunrZ5ptWdTy2
 /uZVG+5cf1P7/XdtuOyhX9x9VCllh9cx5H7vp/4n6vEWJbOSu14AAAAASUVORK5CYII=
 " />
 
-### Git 项目
-[simple-script-kit-4X](https://github.com/ekeyme/simple-script-kit-4X)
-
-### 大件事
-* 2012 有了创建一个自己Blog的想法，当时技术条件也已经足够，却一直拖拖延
-* 20150604 终于... 尽管不是什么好日子（本来打算是等我生日那天），最终决定提前悄悄上线
-* 20151226 又随便整整，搬迁到hexo
-
 ### All about me
-* Email: ekeyme@gmail.com
+* Email: ```base64 -d <<< 'ZWtleW1lQGdtYWlsLmNvbQo='```
 * [Flickr](https://www.flickr.com/photos/ekeyme)
 * [维基百科](http://zh.wikipedia.org/zh-cn/User:Ekeyme)
 * 新浪微博: [ekeyme](http://weibo.com/ekeyme)
 * Google ID: [ekeyme](http://plus.google.com/ekeyme)
 * Facebook: [ekeyme](https://www.facebook.com/ekeyme)
 * Twitter: [ekeyme](https://twitter.com/ekeyme)
+
+---
+
+### Reading list
+
+#### *2015*
+
+书名 | Author | 备注
+--- | --- | ---
+一课经济学 | [美]亨利·黑兹利特 | 非常让人脑门打开的书，专门剖析普通经济学家容易犯的谬论
+学习的艺术 | 沃尔特·皮特金 |
+自由选择 |  [美] 米尔顿·弗里德曼 / 罗丝·弗里德曼 | 非常好，阐述让人们自由选择的好处与理由
+深入浅出统计学 | Dawn Griffiths | 统计学入门
+科技想要什么 | [美] 凯文·凯利 / 熊祥 译 | 从生物进化的角度看技术的发展
+被劫持的私生活 | 肉唐僧 | 婚姻与性的发展史，毁三观！
+三体 | 刘慈欣 |
+Head First Python（中文版） | 巴里（Paul Barry）/ 林琪, 郭静 译 |
+魔鬼约会学 | 魔鬼咨询师 阮琦 | 女性心理, 如何与女人交流
+跟任何人都聊得来 | ( 美) 迈克•贝克特尔（Mike Bechtle）/ 陈芳芳 译 |
+费城风云：美国宪法的诞生及其启示 | 易中天 |
