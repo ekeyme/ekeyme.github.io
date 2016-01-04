@@ -83,3 +83,45 @@ deploy:
   repo: git@github.com:ekeyme/ekeyme.github.io.git
   branch: master
   message: deployed by hexo
+
+# Config for TKL theme
+cover: /img/bg_img.jpg
+logo: /img/logo.png
+top_saying:
+- title: DON NOT FORGOT THE <span>C</span>.
+- content: <i style="background:#1E1D1D;color:#fff">William Graham Sumner, 1918. The forgotten man.</i>
+bottom_saying: 多写一点，想深一点。
+# Content
+excerpt_link: Read More
+
+rss: /atom.xml
+
+highlightjs: vs
+
+#Works
+#works:
+#- works_name: AAA
+#  works_url: /
+#- works_name: BBB
+#  works_url: /atom.xml
+
+#duoshuo name
+duoshuo: blogekeyme
+
+# Miscellaneous
+github: https://github.com/ekeyme
+#twitter: https://twitter.com/ekeyme
+#facebook: https://www.facebook.com/ekeyme
+#google: https://google.com/ekeyme
+#weibo: http://weibo.com/ekeyme
+
+#about  timeline
+timeline:
+- num: 1
+  word: 2015- 生物信息工程师，广州复能基因
+
+#  link: http://domain.com/
+#Links
+links:
+- name: 我的小伙伴-Bigfish
+  link: http://bigfishalpha.com
