@@ -14,7 +14,7 @@ timezone:
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 url: http://blog.ekeyme.com
 root: /
-permalink: :year/:title.html
+permalink: :title.html
 permalink_defaults:
 
 # Directory
