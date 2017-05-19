@@ -105,8 +105,11 @@ highlightjs: vs
 #- works_name: BBB
 #  works_url: /atom.xml
 
-#duoshuo name
-duoshuo: blogekeyme
+#disqus name
+disqus_shortname: blog-ekeyme-com
+
+#fancybox
+fancybox: true
 
 # Miscellaneous
 github: https://github.com/ekeyme
