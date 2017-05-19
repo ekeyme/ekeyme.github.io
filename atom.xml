@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>M&amp;O</title>
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://blog.ekeyme.com/"/>
+  <updated>2017-05-19T08:50:14.882Z</updated>
+  <id>http://blog.ekeyme.com/</id>
+  
+  <author>
+    <name>Ekeyme Mo</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>shell命令 tac 帮助阻塞程序直至EOF</title>
+    <link href="http://blog.ekeyme.com/a-good-way-to-misuse-shell-tac.html"/>
+    <id>http://blog.ekeyme.com/a-good-way-to-misuse-shell-tac.html</id>
+    <published>2017-01-13T09:58:01.000Z</published>
+    <updated>2017-05-19T08:50:14.882Z</updated>
+    
+    <content type="html"><![CDATA[<p>起源于我要写的一个脚本，<a href="https://gist.github.com/ekeyme/652cf5fe4ce1540d74d9cbab68125600" target="_blank" rel="external"><code>joinline</code></a>。<code>joinline</code>首先从<code>stdin（e.g. 终端）</code>读入多行文本，然后用一个字符串（join string）将每行连接起来，最后打印。考虑到性能问题，<code>joinline</code>需要每读1行文本，就要做连接并打印（到<code>stdout</code>）。此时有1个问题需要注意，使用<code>joinline</code>时，如果输入和输出都是同个终端，且输入未结束又同时做连接打印，便会出现下面的字符串流的“错串问题”。</p>
+<p>本来输入是<code>1\n2\n3\n4\n5\n</code> + <code>Ctr-D</code>（End-of-File, 文件末尾信号），期待结果应该是<code>1;2;3;4;5</code>，却<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ bad-joinline <span class="string">";"</span></div><div class="line"><span class="number">1</span></div><div class="line"><span class="number">2</span></div><div class="line"><span class="number">1</span>;<span class="number">3</span></div><div class="line"><span class="number">2</span>;<span class="number">4</span></div><div class="line"><span class="number">3</span>;<span class="number">5</span></div><div class="line"><span class="number">4</span>;<span class="number">5</span></div><div class="line">$</div></pre></td></tr></table></figure></p>
+<p>因此，我首先想到我需要一个能接受终端输入的同时将程序阻塞直输入结束（<code>EOF(Ctr+D)</code>），再将其释放的命令。<br>最终上<a href="http://unix.stackexchange.com/questions/337055/a-program-that-could-buffer-stdin-or-file/337061#337061" target="_blank" rel="external">unix.stackexchange</a>问了问，原来最简单的便是使用管道将2个<code>tac</code>，<code>tac | tac</code>，串起来。tac一般是用来按行倒着打印文件的，且在接受标准输入的同时会一直阻塞至文件结束才开始打印。第1个<code>tac</code>会将文件倒着打印，第2个又将行顺序反了的文件倒正回来。<br><figure class="highlight gauss"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ tac | tac</div><div class="line"><span class="keyword">line</span> <span class="number">1</span></div><div class="line"><span class="keyword">line</span> <span class="number">2</span></div><div class="line"><span class="keyword">line</span> <span class="number">3</span></div><div class="line">^D    <span class="meta"># Ctr-D 接受到EOF，后面输出 </span></div><div class="line"><span class="keyword">line</span> <span class="number">1</span></div><div class="line"><span class="keyword">line</span> <span class="number">2</span></div><div class="line"><span class="keyword">line</span> <span class="number">3</span></div></pre></td></tr></table></figure></p>
+<p>虽然有点滥用，却胜在简单。在公司的服务器，30+万行的数据输入，处理时间还可以接受。<br>另外，还有1种更高效的方法便是使用命令<code>sed &#39;:loop; N; b loop&#39;</code>，这个命令解释起来不容易，简单来说就是采用<code>sed</code>的<code>N</code>命令，不停地将<strong><em>下一行</em></strong>又<strong><em>下一行</em></strong>（看到<code>loop</code>没有）的内容append入<code>sed</code>的模式空间（<code>pattern space</code>）中，直至文件结尾再打印出来（感觉说了1句废话）。两者的性能差别有2倍左右。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ cat * | wc -l</div><div class="line"><span class="number">383803</span></div><div class="line">$ time cat * | tac | tac <span class="number">1</span>&gt;/dev/null</div><div class="line"></div><div class="line"><span class="built_in">real</span>    <span class="number">0</span>m0<span class="number">.710s</span></div><div class="line">user    <span class="number">0</span>m0<span class="number">.179s</span></div><div class="line">sys     <span class="number">0</span>m0<span class="number">.915s</span></div><div class="line">$ time cat * | sed <span class="string">':loop; N; b loop'</span> <span class="number">1</span>&gt;/dev/null</div><div class="line"></div><div class="line"><span class="built_in">real</span>    <span class="number">0</span>m0<span class="number">.468s</span></div><div class="line">user    <span class="number">0</span>m0<span class="number">.143s</span></div><div class="line">sys     <span class="number">0</span>m0<span class="number">.484s</span></div></pre></td></tr></table></figure></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;起源于我要写的一个脚本，&lt;a href=&quot;https://gist.github.com/ekeyme/652cf5fe4ce1540d74d9cbab68125600&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;&lt;code&gt;joinline&lt;/code
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>一张图总结 - 我懒惰的2015</title>
+    <link href="http://blog.ekeyme.com/year-2015.html"/>
+    <id>http://blog.ekeyme.com/year-2015.html</id>
+    <published>2016-01-03T10:03:53.000Z</published>
+    <updated>2017-05-19T08:50:14.952Z</updated>
+    
+    <content type="html"><![CDATA[<p>自2015年5月21日起，当时临近研究生毕业尾期，被各种论文、答辩的事情缠身，为了找回学习的感觉，我给自己立了一个小小的目标：1周6天，工作后，每天花90分钟随性学习自己感兴趣的东西。经225天的统计，处理结果是将小部分没有记录的一天当学习时长为0、以及超出90分钟时长的还是记为90分钟，最后将各项的学习时长归类（Figure 1）。python的学习时长最长，4.1 个工作天（4.1 * 8 h），还有git 1.3个工作天，这门技术是我2015年中最喜欢的；并且现在对两者的掌控也是小有所成，py标准库、单元测试都不是问题，git的submodule也都略懂。</p>
+<p>但是，再怎么样也掩盖不了我的懒惰啊，总体完成度仅46%。2016年我会如何呢？2016年末再统计了，我希望未来5年，能够坚持每年做这样的一个总结。现在对这个形式也没什么想法，所以进行挖掘出来更大家分享的也不多，慢慢坚持着看看吧。</p>
+<img src="/img/year-2015.png" title="2015年的学习时间分布">
+<p><strong><em>Figure 1 2015年 每晚90分钟学习时长的分布, 总时30.1 /工作天(8h).</em></strong></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;自2015年5月21日起，当时临近研究生毕业尾期，被各种论文、答辩的事情缠身，为了找回学习的感觉，我给自己立了一个小小的目标：1周6天，工作后，每天花90分钟随性学习自己感兴趣的东西。经225天的统计，处理结果是将小部分没有记录的一天当学习时长为0、以及超出90分钟时长的还
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Qshutdown 快速关机bat脚本</title>
+    <link href="http://blog.ekeyme.com/Qshutdown-shutdown-pc-in-time.html"/>
+    <id>http://blog.ekeyme.com/Qshutdown-shutdown-pc-in-time.html</id>
+    <published>2015-12-26T08:51:45.000Z</published>
+    <updated>2017-05-19T08:50:14.879Z</updated>
+    
+    <content type="html"><![CDATA[<p>这个脚本写成的初衷就是为了解决下载过程中，突然有事离开，又需要等待下载完后，关闭电脑的情形；或者你将要睡觉却有些数据正在上传到云端，时间大致还需要10分钟，你自然会想让电脑在10~20分钟后会自动关机。</p>
+<ul>
+<li>首先右键另存为从<a href="https://raw.githubusercontent.com/ekeyme/simple-script-kit-4X/master/windows/Qshutdown.bat" target="_blank" rel="external">这里</a>取得 <em>Qshutdown.bat</em> 脚本，保存为 <em>Qshutdown.bat</em> 同名文件（你也可以使用自己喜欢的名字保存，但务必选择文件类型为 <em>所有文件</em> ，且扩展名为 <em>.bat</em> 的可执行脚本）。</li>
+<li><p><em>Qshutdown.bat</em> 脚本预设了3个参数</p>
+<ul>
+<li><em>00</em>：2个0，立刻关机</li>
+<li><em>c</em>：cancel，取消原先的定时关机计划</li>
+<li><em>任何大于0的数字</em>：？分钟后关机，如输入 <em>10</em> ，就是10分钟后关机</li>
+</ul>
+</li>
+<li><p>如果你想20分钟后关机，双击运行 <em>Qshutdown.bat</em> ，然后输入 <em>20</em> 即可开启一个20分钟后关机的计划，非常方便。</p>
+</li>
+<li>然后如果你想取消原定计划，那就运行 <em>Qshutdown.bat</em> 后，输入 <em>c</em> 即可。</li>
+<li>此外你还可以按自己的实际情况设定<em>shutdown.exe</em>的实际路径与惯用参数，具体位置如下<figure class="highlight bat"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">:: Shutdown program, default: C:WindowsSystem32shutdown.exe</div><div class="line"><span class="built_in">set</span> shutdown=C:WindowsSystem32shutdown.exe</div><div class="line">:: para to cancel shutdown plan</div><div class="line"><span class="built_in">set</span> cancel_para=c</div><div class="line">:: para to shutdown PC now</div><div class="line"><span class="built_in">set</span> shutdown_now_para=<span class="number">00</span></div></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这个脚本写成的初衷就是为了解决下载过程中，突然有事离开，又需要等待下载完后，关闭电脑的情形；或者你将要睡觉却有些数据正在上传到云端，时间大致还需要10分钟，你自然会想让电脑在10~20分钟后会自动关机。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;首先右键另存为从&lt;a href=&quot;https
+    
+    </summary>
+    
+    
+  </entry>
+  
+</feed>
